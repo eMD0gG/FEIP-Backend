@@ -1,0 +1,4 @@
+id,name,comfort,bedrooms,sea_row,available
+1,Домик у моря,душ,2,1,true
+2,Горный домик,никаких,3,3,true
+3,Сосновый домик,санузел,1,2,false
