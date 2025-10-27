@@ -16,6 +16,11 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude: '../src/Service/CsvService.php' 
+
+    App\Service\CsvService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
 
     App\Service\CsvService:
         arguments:
