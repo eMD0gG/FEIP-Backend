@@ -48,7 +48,7 @@ class HouseController extends AbstractController
         $bookings[] = $newBooking;
         $this->csvService->writeCsv('bookings.csv', $bookings, ['id', 'cottage_id', 'phone', 'comment']);
 
-        return new JsonResponse(['status' => 'success', 'booking' => $newBooking]);
+        return new JsonResponse(['booking' => $newBooking], status: 200);
     }
 
     #[Route('/book/{id}', methods: ['PUT'])]
@@ -68,10 +68,10 @@ class HouseController extends AbstractController
 
         if ($updated) {
             $this->csvService->writeCsv('bookings.csv', $bookings, ['id', 'cottage_id', 'phone', 'comment']);
-            return new JsonResponse(['status' => 'updated']);
+            return new JsonResponse(status: 204);
         }
 
-        return new JsonResponse(['status' => 'not found'], 404);
+        return new JsonResponse(status: 404);
     }
 
 }
