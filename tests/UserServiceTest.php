@@ -2,7 +2,7 @@
 
 namespace App\Tests\Service;
 
-use App\Dto\CreateUserDto;
+use App\DTO\CreateUserDto;
 use App\Entity\User;
 use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,7 +13,7 @@ class UserServiceTest extends TestCase
 {
     public function testCreateUserSuccess(): void
     {
-        $dto = new CreateUserDto('John Doe', '1234567890');
+        $dto = new CreateUserDto('John Doe', substr('1234567890', 0, 13));
 
         $userRepo = $this->createMock(EntityRepository::class);
         $userRepo->method('findOneBy')->willReturn(null);

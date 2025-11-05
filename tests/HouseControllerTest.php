@@ -31,7 +31,7 @@ class HouseControllerTest extends WebTestCase
     {
         $user = new User();
         $user->setName('Test User');
-        $user->setNumber(uniqid('user_'));
+        $user->setNumber(substr(uniqid('user_'), 0, 13));
         $this->em->persist($user);
         $this->em->flush();
 
