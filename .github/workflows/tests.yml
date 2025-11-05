@@ -1,0 +1,58 @@
+name: Run PHPUnit tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: symfony
+          POSTGRES_PASSWORD: symfony
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U symfony"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: 8.2
+          extensions: pdo_pgsql, intl, mbstring, xml, dom
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Wait for PostgreSQL to start
+        run: |
+          until pg_isready -h 127.0.0.1 -p 5432 -U symfony; do
+            echo "⏳ Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Prepare test database
+        env:
+          DATABASE_URL: "postgresql://symfony:symfony@127.0.0.1:5432/test_db"
+        run: |
+          php bin/console doctrine:database:create --env=test --if-not-exists
+          php bin/console doctrine:schema:create --env=test
+
+      - name: Run PHPUnit
+        env:
+          DATABASE_URL: "postgresql://symfony:symfony@127.0.0.1:5432/test_db"
+        run: php bin/phpunit --colors=always
