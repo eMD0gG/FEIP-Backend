@@ -1,0 +1,72 @@
+name: Run PHPUnit tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: symfony
+          POSTGRES_PASSWORD: symfony
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U symfony"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        extensions: pdo_pgsql, intl, mbstring, xml, dom
+        coverage: none
+        
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: composer-
+        
+    - name: Install Composer dependencies
+      run: composer install --no-interaction --prefer-dist --no-progress
+
+    - name: Dump Composer autoload
+      run: composer dump-autoload -o
+      
+    - name: Wait for PostgreSQL to start
+      run: |
+        until pg_isready -h 127.0.0.1 -p 5432 -U symfony; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+        
+    - name: Prepare test database
+      env:
+        DATABASE_URL: "postgresql://symfony:symfony@127.0.0.1:5432/test_db"
+        APP_ENV: test
+      run: |
+        php bin/console doctrine:database:drop --force --if-exists --env=test
+        php bin/console doctrine:database:create --env=test
+        php bin/console doctrine:schema:create --env=test
+        php bin/console cache:clear --env=test
+        
+    - name: Run PHPUnit
+      env:
+        DATABASE_URL: "postgresql://symfony:symfony@127.0.0.1:5432/test_db"
+        APP_ENV: test
+      run: php ./vendor/bin/phpunit --colors=always --stop-on-failure
