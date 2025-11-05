@@ -3,46 +3,39 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Doctrine\ORM\Tools\SchemaTool;
 use App\Entity\User;
 
 class UserControllerTest extends WebTestCase
 {
     private $em;
+    private $client;
 
-    /**
-     * Создаёт/сбрасывает базу данных перед тестом
-     */
-    private function createSchema(): void
+    protected function setUp(): void
     {
-        $metaData = $this->em->getMetadataFactory()->getAllMetadata();
-        if (!empty($metaData)) {
-            $schemaTool = new SchemaTool($this->em);
-            try {
-                $schemaTool->dropSchema($metaData);
-                $schemaTool->createSchema($metaData);
-            } catch (\Exception $e) {
-                echo "Ошибка при создании схемы: " . $e->getMessage() . PHP_EOL;
-                throw $e;
-            }
+        $this->client = static::createClient();
+        $this->em = $this->client->getContainer()->get('doctrine')->getManager();
+        
+        $this->em->getConnection()->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->em->getConnection()->isTransactionActive()) {
+            $this->em->getConnection()->rollback();
         }
+        
+        $this->em->close();
+        $this->em = null;
+        $this->client = null;
+        
+        parent::tearDown();
     }
 
     public function testCreateUser(): void
     {
-        $client = static::createClient();
-
-        // Получаем EntityManager
-        $this->em = $client->getContainer()->get('doctrine')->getManager();
-
-        // Создаём схему базы данных
-        $this->createSchema();
-
-        // Генерируем уникальный номер длиной ровно 13 символов
         $uniqueNumber = substr(str_replace('.', '', uniqid('number_', true)), 0, 13);
-
-        // Отправляем POST-запрос
-        $client->request(
+        
+        $this->client->request(
             'POST',
             '/api/user',
             [],
@@ -54,23 +47,19 @@ class UserControllerTest extends WebTestCase
             ])
         );
 
-        // Получаем ответ
-        $response = $client->getResponse();
-
-        // Для дебага (показывает реальную ошибку в CI)
+        $response = $this->client->getResponse();
+        
         if ($response->getStatusCode() !== 201) {
-            echo "Ответ сервера: " . $response->getContent() . PHP_EOL;
+            echo "Status Code: " . $response->getStatusCode() . PHP_EOL;
+            echo "Response Content: " . $response->getContent() . PHP_EOL;
         }
-
-        // Проверяем код ответа
+        
         $this->assertEquals(201, $response->getStatusCode());
-
-        // Проверяем содержимое ответа
+        
         $responseData = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('message', $responseData);
         $this->assertEquals('User created successfully', $responseData['message']);
 
-        // Дополнительно: проверяем, что пользователь реально создался в базе
         $user = $this->em->getRepository(User::class)->findOneBy(['number' => $uniqueNumber]);
         $this->assertNotNull($user);
         $this->assertEquals('Test User', $user->getName());
