@@ -1,7 +1,14 @@
 <?php
 namespace App\Controller;
 
-use App\Service\CsvService;
+use App\Dto\CreateBookingDto;
+use App\Dto\UpdateBookingDto;
+use App\Service\HouseService;
+use App\Service\BookingService;
+use App\Repository\HouseRepository;
+use App\Repository\BookingRequestRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -10,68 +17,91 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/houses')]
 class HouseController extends AbstractController
 {
-    private CsvService $csvService;
 
-    public function __construct(CsvService $csvService)
-    {
-        $this->csvService = $csvService;
-    }
+    public function __construct(
+        private EntityManagerInterface $em,
+        private HouseRepository $houseRepo,
+        private BookingRequestRepository $bookingRepo,
+        private UserRepository $userRepo,
+        private HouseService $houseService,
+        private BookingService $bookingService
+    ) {}
 
     #[Route('/available', methods: ['GET'])]
     public function getAvailable(): JsonResponse
     {
-        $houses = $this->csvService->readCsv('houses.csv');
-        $bookings = $this->csvService->readCsv('bookings.csv');
-
-        $bookedIds = array_column($bookings, 'house_id');
-
-        $available = array_filter($houses, function ($house) use ($bookedIds) {
-        return !in_array($house['id'], $bookedIds);
-        });
-
-        return new JsonResponse($available);
+        $availableHouses = $this->houseService->getAvailableHouses();
+        return $this->json($availableHouses);
     }
 
     #[Route('/book', methods: ['POST'])]
     public function book(Request $request): JsonResponse
     {
-        $bookings = $this->csvService->readCsv('bookings.csv');
         $data = json_decode($request->getContent(), true);
+        
+         if (empty($data)) {
+            return $this->json(['error' => 'Request body is empty'], 400);
+        }
+        
+        if (empty($data['user_id']) || empty($data['house_id'])) {
+            return $this->json(['error' => 'user_id and house_id are required'], 400);
+        }
 
-        $newBooking = [
-            'id' => count($bookings) + 1,
-            'house_id' => $data['cottage_id'],
-            'phone' => $data['phone'],
-            'comment' => $data['comment'] ?? ''
-        ];
+        $user = $this->userRepo->find($data['user_id']);
+        $house = $this->houseRepo->find($data['house_id']);
 
-        $bookings[] = $newBooking;
-        $this->csvService->writeCsv('bookings.csv', $bookings, ['id', 'cottage_id', 'phone', 'comment']);
+        if (!$user || !$house) {
+            return $this->json(['error' => 'User or house not found'], 404);
+        }
 
-        return new JsonResponse(['booking' => $newBooking], status: 200);
+        try {
+            $bookingDto = $this->bookingService->createBooking(
+                new CreateBookingDto($data['comment'] ?? null),
+                $user,
+                $house
+            );
+            
+            return $this->json([
+                'message' => 'Booking created successfully',
+                'booking' => $bookingDto
+            ], 201);
+            
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 409);
+        }
     }
 
     #[Route('/book/{id}', methods: ['PUT'])]
     public function updateBooking(int $id, Request $request): JsonResponse
     {
-        $bookings = $this->csvService->readCsv('bookings.csv');
+        $booking = $this->bookingRepo->find($id);
+
+        if (!$booking) {
+            return $this->json(['error' => 'Booking not found'], 404);
+        }
+
         $data = json_decode($request->getContent(), true);
-        $updated = false;
 
-        foreach ($bookings as &$booking) {
-            if ($booking['id'] == $id) {
-                $booking['comment'] = $data['comment'] ?? '';
-                $updated = true;
-                break;
-            }
+         $allowedStatuses = ['pending', 'confirmed', 'cancelled'];
+        if (isset($data['status']) && !in_array($data['status'], $allowedStatuses)) {
+            return $this->json(['error' => 'Invalid status'], 400);
         }
 
-        if ($updated) {
-            $this->csvService->writeCsv('bookings.csv', $bookings, ['id', 'cottage_id', 'phone', 'comment']);
-            return new JsonResponse(status: 204);
+         try {
+            $updateDto = new UpdateBookingDto(
+                $data['status'] ?? null,
+                $data['comment'] ?? null
+            );
+            
+            $bookingDto = $this->bookingService->updateBooking($booking, $updateDto);
+            
+            return $this->json([
+                'message' => 'Booking updated successfully',
+                'booking' => $bookingDto
+            ]);
+            
+        } catch (\Exception $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
         }
-
-        return new JsonResponse(status: 404);
     }
-
 }
