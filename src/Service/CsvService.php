@@ -21,6 +21,7 @@ class CsvService{
         }
 
         fclose($file);
+
         return $data;
     }
 

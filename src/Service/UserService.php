@@ -2,18 +2,21 @@
 
 namespace App\Service;
 
-use App\Dto\CreateUserDto;
+use App\DTO\CreateUserDto;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserService {
-    public function __construct(private EntityManagerInterface $entityManager){}
+class UserService
+{
+    public function __construct(private EntityManagerInterface $entityManager)
+    {
+    }
 
-    public function createUser(CreateUserDto $dto) {
-
+    public function createUser(CreateUserDto $dto)
+    {
         $existingUser = $this->entityManager->getRepository(User::class)
             ->findOneBy(['number' => $dto->number]);
-            
+
         if ($existingUser) {
             throw new \Exception('User with this number already exists');
         }
@@ -25,5 +28,4 @@ class UserService {
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }
-
 }

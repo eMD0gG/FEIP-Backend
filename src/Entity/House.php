@@ -57,6 +57,7 @@ class House
     public function setArea(?float $area): self
     {
         $this->area = $area;
+
         return $this;
     }
 
@@ -68,6 +69,7 @@ class House
     public function setAddress(?string $address): self
     {
         $this->address = $address;
+
         return $this;
     }
 
@@ -79,6 +81,7 @@ class House
     public function setPrice(?int $price): self
     {
         $this->price = $price;
+
         return $this;
     }
 
@@ -90,6 +93,7 @@ class House
     public function setBedrooms(?int $bedrooms): self
     {
         $this->bedrooms = $bedrooms;
+
         return $this;
     }
 
@@ -101,6 +105,7 @@ class House
     public function setDistanceToSea(?int $distanceToSea): self
     {
         $this->distanceToSea = $distanceToSea;
+
         return $this;
     }
 
@@ -112,6 +117,7 @@ class House
     public function setHasShower(?bool $hasShower): self
     {
         $this->hasShower = $hasShower;
+
         return $this;
     }
 
@@ -123,6 +129,7 @@ class House
     public function setHasBathroom(?bool $hasBathroom): self
     {
         $this->hasBathroom = $hasBathroom;
+
         return $this;
     }
 

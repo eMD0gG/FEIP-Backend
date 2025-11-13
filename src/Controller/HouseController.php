@@ -1,13 +1,14 @@
 <?php
+
 namespace App\Controller;
 
-use App\Dto\CreateBookingDto;
-use App\Dto\UpdateBookingDto;
-use App\Service\HouseService;
-use App\Service\BookingService;
-use App\Repository\HouseRepository;
+use App\DTO\CreateBookingDto;
+use App\DTO\UpdateBookingDto;
 use App\Repository\BookingRequestRepository;
+use App\Repository\HouseRepository;
 use App\Repository\UserRepository;
+use App\Service\BookingService;
+use App\Service\HouseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,20 +18,21 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/api/houses')]
 class HouseController extends AbstractController
 {
-
     public function __construct(
         private EntityManagerInterface $em,
         private HouseRepository $houseRepo,
         private BookingRequestRepository $bookingRepo,
         private UserRepository $userRepo,
         private HouseService $houseService,
-        private BookingService $bookingService
-    ) {}
+        private BookingService $bookingService,
+    ) {
+    }
 
     #[Route('/available', methods: ['GET'])]
     public function getAvailable(): JsonResponse
     {
         $availableHouses = $this->houseService->getAvailableHouses();
+
         return $this->json($availableHouses);
     }
 
@@ -38,11 +40,11 @@ class HouseController extends AbstractController
     public function book(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        
-         if (empty($data)) {
+
+        if (empty($data)) {
             return $this->json(['error' => 'Request body is empty'], 400);
         }
-        
+
         if (empty($data['user_id']) || empty($data['house_id'])) {
             return $this->json(['error' => 'user_id and house_id are required'], 400);
         }
@@ -60,12 +62,11 @@ class HouseController extends AbstractController
                 $user,
                 $house
             );
-            
+
             return $this->json([
                 'message' => 'Booking created successfully',
-                'booking' => $bookingDto
+                'booking' => $bookingDto,
             ], 201);
-            
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 409);
         }
@@ -82,24 +83,23 @@ class HouseController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
-         $allowedStatuses = ['pending', 'confirmed', 'cancelled'];
+        $allowedStatuses = ['pending', 'confirmed', 'cancelled'];
         if (isset($data['status']) && !in_array($data['status'], $allowedStatuses)) {
             return $this->json(['error' => 'Invalid status'], 400);
         }
 
-         try {
+        try {
             $updateDto = new UpdateBookingDto(
                 $data['status'] ?? null,
                 $data['comment'] ?? null
             );
-            
+
             $bookingDto = $this->bookingService->updateBooking($booking, $updateDto);
-            
+
             return $this->json([
                 'message' => 'Booking updated successfully',
-                'booking' => $bookingDto
+                'booking' => $bookingDto,
             ]);
-            
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 400);
         }
