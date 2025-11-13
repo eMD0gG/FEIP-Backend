@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-
 use App\DTO\CreateUserDto;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,49 +11,46 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
-{   
+{
     public function __construct(
-        private UserService $userService 
-    ) {}
+        private UserService $userService,
+    ) {
+    }
+
     #[Route('/api/user', name: 'create_user', methods: ['POST'])]
     public function createUser(Request $request): JsonResponse
     {
-
         $content = $request->getContent();
         if (empty($content)) {
             return new JsonResponse(
-                ['error' => 'Request body is empty'], 
+                ['error' => 'Request body is empty'],
                 Response::HTTP_BAD_REQUEST
             );
         }
 
         $data = json_decode($content, true);
 
-        if (!isset($data["name"]) || !isset($data["number"])) {
-        return new JsonResponse(
-            ['error' => 'Missing required fields: name and number'], 
-            Response::HTTP_BAD_REQUEST
-        );
+        if (!isset($data['name']) || !isset($data['number'])) {
+            return new JsonResponse(
+                ['error' => 'Missing required fields: name and number'],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $user = new CreateUserDto(
-            $data["name"],
-            $data["number"],
+            $data['name'],
+            $data['number'],
         );
 
-        try 
-        {
+        try {
             $this->userService->createUser($user);
 
             return new JsonResponse(
-                ['message' => 'User created successfully'], 
+                ['message' => 'User created successfully'],
                 Response::HTTP_CREATED
             );
-        } 
-        catch (\Exception $e) 
-        {
+        } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_CONFLICT);
         }
-        
     }
 }

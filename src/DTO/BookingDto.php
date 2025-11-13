@@ -9,6 +9,7 @@ class BookingDto
         public ?int $userId,
         public ?int $houseId,
         public string $status,
-        public ?string $comment
-    ) {}
+        public ?string $comment,
+    ) {
+    }
 }

@@ -11,6 +11,7 @@ class CreateHouseDto
         public int $bedrooms,
         public int $distanceToSea,
         public bool $hasShower,
-        public bool $hasBathroom
-    ) {}
+        public bool $hasBathroom,
+    ) {
+    }
 }
