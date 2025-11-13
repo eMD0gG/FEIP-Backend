@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-class CsvService{
+class CsvService
+{
     private string $projectDir;
 
     public function __construct(string $projectDir)
@@ -21,6 +22,7 @@ class CsvService{
         }
 
         fclose($file);
+
         return $data;
     }
 

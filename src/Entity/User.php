@@ -30,31 +30,33 @@ class User
         $this->bookingRequests = new ArrayCollection();
     }
 
-    public function getId(): ?int 
-    { 
-        return $this->id; 
-    }
-
-    public function getName(): string 
-    { 
-        return $this->name; 
-    }
-
-    public function setName(string $name): self 
-    { 
-        $this->name = $name; 
-        return $this; 
-    }
-
-    public function getNumber(): string 
-    { 
-        return $this->number; 
-    }
-
-    public function setNumber(string $number): self 
+    public function getId(): ?int
     {
-        $this->number = $number; 
-        return $this; 
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getNumber(): string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(string $number): self
+    {
+        $this->number = $number;
+
+        return $this;
     }
 
     /**

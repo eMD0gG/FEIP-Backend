@@ -20,21 +20,10 @@ class HouseControllerTest extends WebTestCase
     private function createSchema(): void
     {
         $metaData = $this->em->getMetadataFactory()->getAllMetadata();
-        if (empty($metaData)) {
-            return;
-        }
-
-        $schemaTool = new SchemaTool($this->em);
-        $conn = $this->em->getConnection();
-
-        $dropSql = $schemaTool->getDropSchemaSql($metaData);
-        foreach ($dropSql as $sql) {
-            $conn->executeStatement($sql);
-        }
-
-        $createSql = $schemaTool->getCreateSchemaSql($metaData);
-        foreach ($createSql as $sql) {
-            $conn->executeStatement($sql);
+        if (!empty($metaData)) {
+            $schemaTool = new SchemaTool($this->em);
+            $schemaTool->dropSchema($metaData);
+            $schemaTool->createSchema($metaData);
         }
     }
 
