@@ -30,15 +30,16 @@ class UserController extends AbstractController
 
         $data = json_decode($content, true);
 
-        if (!isset($data['name']) || !isset($data['number'])) {
+        if (!isset($data['name']) || !isset($data['number']) || !isset($data['password'])) {
             return new JsonResponse(
-                ['error' => 'Missing required fields: name and number'],
+                ['error' => 'Missing required fields: name, number and password'],
                 Response::HTTP_BAD_REQUEST
             );
         }
 
         $user = new CreateUserDto(
             $data['name'],
+            $data['password'],
             $data['number'],
         );
 

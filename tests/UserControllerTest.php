@@ -43,6 +43,7 @@ class UserControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 'name' => 'Test User',
+                'password' => '123',
                 'number' => $uniqueNumber
             ])
         );
