@@ -6,6 +6,7 @@ class CreateUserDto
 {
     public function __construct(
         public string $name,
+        public string $password,
         public string $number,
     ) {
     }
