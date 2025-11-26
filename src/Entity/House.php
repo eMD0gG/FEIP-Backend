@@ -2,11 +2,26 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\Repository\HouseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            uriTemplate: '/houses/available',
+            controller: 'App\Controller\HouseController::getAvailable',
+            name: 'available_houses'
+        ),
+    ]
+)]
 #[ORM\Entity(repositoryClass: HouseRepository::class)]
 class House
 {
@@ -133,9 +148,6 @@ class House
         return $this;
     }
 
-    /**
-     * @return Collection<int, BookingRequest>
-     */
     public function getBookingRequests(): Collection
     {
         return $this->bookingRequests;
@@ -154,7 +166,6 @@ class House
     public function removeBookingRequest(BookingRequest $bookingRequest): static
     {
         if ($this->bookingRequests->removeElement($bookingRequest)) {
-            // set the owning side to null (unless already changed)
             if ($bookingRequest->getHouse() === $this) {
                 $bookingRequest->setHouse(null);
             }

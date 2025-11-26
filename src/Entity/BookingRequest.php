@@ -2,9 +2,29 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\Repository\BookingRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/houses/book',
+            controller: 'App\Controller\HouseController::book',
+            name: 'book_house'
+        ),
+        new Put(
+            uriTemplate: '/houses/book/{id}',
+            controller: 'App\Controller\HouseController::updateBooking',
+            name: 'update_booking'
+        ),
+    ]
+)]
 #[ORM\Entity(repositoryClass: BookingRequestRepository::class)]
 class BookingRequest
 {

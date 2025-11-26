@@ -2,9 +2,27 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AccessTokenRepository;
 
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/login',
+            controller: 'App\Controller\AuthController::login',
+            name: 'api_login'
+        ),
+        new Delete(
+            uriTemplate: '/logout',
+            controller: 'App\Controller\AuthController::logout',
+            name: 'api_logout'
+        )
+    ]
+)]
 #[ORM\Entity(repositoryClass: AccessTokenRepository::class)]
 class AccessToken
 {
