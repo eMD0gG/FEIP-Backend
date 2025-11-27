@@ -2,7 +2,7 @@ name: Run PHPUnit tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "6th_lab" ]
   pull_request:
     branches: [ "master" ]
 

@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class HouseController extends AbstractController
 {
     public function __construct(
-        private EntityManagerInterface $em,
         private HouseRepository $houseRepo,
         private BookingRequestRepository $bookingRepo,
         private UserRepository $userRepo,
@@ -36,7 +35,7 @@ class HouseController extends AbstractController
         return $this->json($availableHouses);
     }
 
-    #[Route('/book', methods: ['POST'])]
+    #[Route('/book', methods: ['POST'], priority: 1)]
     public function book(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -72,7 +71,7 @@ class HouseController extends AbstractController
         }
     }
 
-    #[Route('/book/{id}', methods: ['PUT'])]
+    #[Route('/book/{id}', methods: ['PUT'], priority: 1)]
     public function updateBooking(int $id, Request $request): JsonResponse
     {
         $booking = $this->bookingRepo->find($id);

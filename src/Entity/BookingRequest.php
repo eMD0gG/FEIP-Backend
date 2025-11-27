@@ -2,10 +2,35 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\Controller\HouseController;
 use App\Repository\BookingRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BookingRequestRepository::class)]
+#[ApiResource(
+    operations: [
+
+        new Post(
+            uriTemplate: '/houses/book',
+            controller: HouseController::class . '::book',
+            denormalizationContext: ['groups' => ['booking:write']],
+            normalizationContext: ['groups' => ['booking:read']],
+            name: 'create_booking'
+        ),
+
+        new Put(
+            uriTemplate: '/houses/book/{id}',
+            controller: HouseController::class . '::updateBooking',
+            denormalizationContext: ['groups' => ['booking:update']],
+            normalizationContext: ['groups' => ['booking:read']],
+            name: 'update_booking'
+        ),
+    ],
+    paginationEnabled: false
+)]
 class BookingRequest
 {
     #[ORM\Id]
