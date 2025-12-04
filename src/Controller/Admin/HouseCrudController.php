@@ -24,31 +24,15 @@ class HouseCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id')->onlyOnIndex(),
-            
+            IdField::new('id'),
             TextField::new('address', 'Адрес'),
-            NumberField::new('area', 'Площадь (м²)')
-                ->setNumDecimals(1),
-            IntegerField::new('price', 'Цена (руб)')
-                ->setTextAlign('right'),
-            
+            NumberField::new('area', 'Площадь'),
+            IntegerField::new('price', 'Цена'),
             IntegerField::new('bedrooms', 'Спальни'),
-            IntegerField::new('distanceToSea', 'Расстояние до моря (м)'),
-            
-            BooleanField::new('hasShower', 'Есть душ')
-                ->renderAsSwitch(false),
-            BooleanField::new('hasBathroom', 'Есть ванная')
-                ->renderAsSwitch(false),
-            
-            CollectionField::new('bookingRequests', 'Бронирования')
-                ->onlyOnDetail()
-                ->setTemplatePath('admin/field/booking_requests.html.twig'),
-            
-            AssociationField::new('bookingRequests', 'Броней')
-                ->onlyOnIndex()
-                ->formatValue(function ($value, $entity) {
-                    return count($entity->getBookingRequests());
-                }),
+            IntegerField::new('distanceToSea', 'Расстояние до моря'),
+            BooleanField::new('hasShower', 'Душ'),
+            BooleanField::new('hasBathroom', 'Ванная'),
+            AssociationField::new('bookingRequests', 'Бронирования'),
         ];
     }
 }

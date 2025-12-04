@@ -189,7 +189,7 @@ class CreateAdminUserCommand extends Command
             'Пользователь теперь администратор',
             sprintf('ID: %d', $user->getId()),
             sprintf('Имя: %s', $user->getName()),
-            sprintf('Номер: %s', $user->getNumber()),
+            sprintf('Номер: %s', $user->getUserIdentifier()),
             sprintf('Роли: %s', implode(', ', $user->getRoles())),
         ]);
 

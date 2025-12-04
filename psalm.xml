@@ -55,6 +55,6 @@
                 <directory name="tests"/>
             </errorLevel>
         </MissingOverrideAttribute>
-      
+        <MissingTemplateParam errorLevel="info" />  
     </issueHandlers>
 </psalm>
