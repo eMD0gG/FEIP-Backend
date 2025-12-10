@@ -8,12 +8,13 @@ use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserServiceTest extends TestCase
 {
     public function testCreateUserSuccess(): void
     {
-        $dto = new CreateUserDto('John Doe', substr('1234567890', 0, 13));
+        $dto = new CreateUserDto('John Doe', '123', substr('1234567890', 0, 13));
 
         $userRepo = $this->createMock(EntityRepository::class);
         $userRepo->method('findOneBy')->willReturn(null);
@@ -23,7 +24,10 @@ class UserServiceTest extends TestCase
         $em->expects($this->once())->method('persist');
         $em->expects($this->once())->method('flush');
 
-        $service = new UserService($em);
+        $hasher = $this->createMock(UserPasswordHasherInterface::class);
+        $hasher->method('hashPassword')->willReturn('hashed_password');
+
+        $service = new UserService($em, $hasher);
         $service->createUser($dto);
     }
 
@@ -32,7 +36,7 @@ class UserServiceTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('User with this number already exists');
 
-        $dto = new CreateUserDto('John Doe', '1234567890');
+        $dto = new CreateUserDto('John Doe', '123', '1234567890');
 
         $existingUser = new User();
 
@@ -42,7 +46,10 @@ class UserServiceTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getRepository')->willReturn($userRepo);
 
-        $service = new UserService($em);
+        $hasher = $this->createMock(UserPasswordHasherInterface::class);
+        $hasher->method('hashPassword')->willReturn('hashed_password');
+
+        $service = new UserService($em, $hasher);
         $service->createUser($dto);
     }
 }

@@ -20,21 +20,10 @@ class HouseControllerTest extends WebTestCase
     private function createSchema(): void
     {
         $metaData = $this->em->getMetadataFactory()->getAllMetadata();
-        if (empty($metaData)) {
-            return;
-        }
-
-        $schemaTool = new SchemaTool($this->em);
-        $conn = $this->em->getConnection();
-
-        $dropSql = $schemaTool->getDropSchemaSql($metaData);
-        foreach ($dropSql as $sql) {
-            $conn->executeStatement($sql);
-        }
-
-        $createSql = $schemaTool->getCreateSchemaSql($metaData);
-        foreach ($createSql as $sql) {
-            $conn->executeStatement($sql);
+        if (!empty($metaData)) {
+            $schemaTool = new SchemaTool($this->em);
+            $schemaTool->dropSchema($metaData);
+            $schemaTool->createSchema($metaData);
         }
     }
 
@@ -43,6 +32,8 @@ class HouseControllerTest extends WebTestCase
         $user = new User();
         $user->setName('Test User');
         $user->setNumber(substr(uniqid('user_'), 0, 13));
+        $user->setPassword(password_hash('223432', PASSWORD_BCRYPT));
+        $user->setRoles(['ROLE_ADMIN_ACCESS']);
         $this->em->persist($user);
         $this->em->flush();
 
@@ -89,6 +80,9 @@ class HouseControllerTest extends WebTestCase
         $this->createSchema();
 
         $user = $this->createTestUser();
+
+        $client->loginUser($user);
+        
         $house = $this->createTestHouse();
 
         $client->request(

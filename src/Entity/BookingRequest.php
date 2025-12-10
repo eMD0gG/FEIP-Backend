@@ -27,51 +27,56 @@ class BookingRequest
     #[ORM\Column(length: 100)]
     private ?string $comment = null;
 
-    public function getId(): ?int { return $this->id; }
-
-    public function getUser(): ?User 
+    public function getId(): ?int
     {
-    return $this->user;
+        return $this->id;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
     }
 
     public function setUser(?User $user): self
     {
-        $this->user = $user; 
+        $this->user = $user;
+
         return $this;
     }
 
     public function getHouse(): ?House
     {
-        return $this->house; 
+        return $this->house;
     }
 
-    public function setHouse(?House $house): self 
+    public function setHouse(?House $house): self
     {
-        $this->house = $house; 
-        return $this; 
+        $this->house = $house;
+
+        return $this;
     }
 
-    public function getStatus(): string 
-    { 
-        return $this->status; 
+    public function getStatus(): string
+    {
+        return $this->status;
     }
 
-    public function setStatus(string $status): self 
-    { 
-        $this->status = $status; 
-        return $this; 
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
     }
 
-     public function getComment(): string 
-    { 
-        return $this->comment; 
+    public function getComment(): string
+    {
+        return $this->comment  ?? '';
     }
 
-    public function setComment(string $comment): self 
-    { 
+    public function setComment(string $comment): self
+    {
         $this->comment = $comment;
-        return $this; 
+
+        return $this;
     }
-
-
 }

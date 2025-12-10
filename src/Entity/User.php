@@ -6,10 +6,12 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,8 +21,14 @@ class User
     #[ORM\Column(length: 100)]
     private string $name;
 
+    #[ORM\Column(type: 'string')]
+    private string $password;
+
     #[ORM\Column(length: 13, unique: true)]
     private string $number;
+
+     #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: BookingRequest::class)]
     private $bookingRequests;
@@ -30,33 +38,67 @@ class User
         $this->bookingRequests = new ArrayCollection();
     }
 
-    public function getId(): ?int 
-    { 
-        return $this->id; 
-    }
-
-    public function getName(): string 
-    { 
-        return $this->name; 
-    }
-
-    public function setName(string $name): self 
-    { 
-        $this->name = $name; 
-        return $this; 
-    }
-
-    public function getNumber(): string 
-    { 
-        return $this->number; 
-    }
-
-    public function setNumber(string $number): self 
+    public function getId(): ?int
     {
-        $this->number = $number; 
-        return $this; 
+        return $this->id;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(string $number): self
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+     public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        return; 
+    }
+    
     /**
      * @return Collection<int, BookingRequest>
      */

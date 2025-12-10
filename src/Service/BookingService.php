@@ -8,24 +8,24 @@ use App\DTO\UpdateBookingDto;
 use App\Entity\BookingRequest;
 use App\Entity\House;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\BookingRequestRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 class BookingService
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private BookingRequestRepository $bookingRepo
-    ) {}
+        private BookingRequestRepository $bookingRepo,
+    ) {
+    }
 
     public function createBooking(CreateBookingDto $dto, User $user, House $house): BookingDto
     {
-
-         $existingBooking = $this->bookingRepo->findOneBy(['house' => $house]);
+        $existingBooking = $this->bookingRepo->findOneBy(['house' => $house]);
         if ($existingBooking) {
             throw new \Exception('This house is already booked');
         }
-        
+
         $booking = new BookingRequest();
         $booking->setUser($user);
         $booking->setHouse($house);
@@ -46,8 +46,12 @@ class BookingService
 
     public function updateBooking(BookingRequest $booking, UpdateBookingDto $dto): BookingDto
     {
-        if ($dto->status !== null) $booking->setStatus($dto->status);
-        if ($dto->comment !== null) $booking->setComment($dto->comment);
+        if (null !== $dto->status) {
+            $booking->setStatus($dto->status);
+        }
+        if (null !== $dto->comment) {
+            $booking->setComment($dto->comment);
+        }
 
         $this->em->flush();
 

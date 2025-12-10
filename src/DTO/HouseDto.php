@@ -12,6 +12,7 @@ class HouseDto
         public ?int $bedrooms = null,
         public ?int $distanceToSea = null,
         public ?bool $hasShower = null,
-        public ?bool $hasBathroom = null
-    ) {}
+        public ?bool $hasBathroom = null,
+    ) {
+    }
 }
