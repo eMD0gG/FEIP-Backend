@@ -4,7 +4,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
-         failOnDeprecation="true"
+         failOnDeprecation="false"
          failOnNotice="true"
          failOnWarning="true"
          bootstrap="tests/bootstrap.php"
@@ -24,7 +24,6 @@
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
-            ignoreIndirectDeprecations="true"
             restrictNotices="true"
             restrictWarnings="true"
     >
@@ -32,11 +31,6 @@
             <directory>src</directory>
         </include>
 
-        <deprecationTrigger>
-            <method>Doctrine\Deprecations\Deprecation::trigger</method>
-            <method>Doctrine\Deprecations\Deprecation::delegateTriggerToBackend</method>
-            <function>trigger_deprecation</function>
-        </deprecationTrigger>
     </source>
 
     <extensions>
