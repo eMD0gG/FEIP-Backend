@@ -5,8 +5,8 @@ namespace App\Service;
 use App\DTO\CreateHouseDto;
 use App\DTO\HouseDto;
 use App\Entity\House;
-use App\Repository\HouseRepository;
 use App\Repository\BookingRequestRepository;
+use App\Repository\HouseRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class HouseService
@@ -14,8 +14,9 @@ class HouseService
     public function __construct(
         private EntityManagerInterface $em,
         private HouseRepository $houseRepo,
-        private BookingRequestRepository $bookingRepo
-    ) {}
+        private BookingRequestRepository $bookingRepo,
+    ) {
+    }
 
     public function createHouse(CreateHouseDto $dto): House
     {
@@ -44,13 +45,11 @@ class HouseService
         $allHouses = $this->houseRepo->findAll();
         $booked = $this->bookingRepo->findAll();
 
-        $bookedIds = array_map(fn($b) => $b->getHouse()->getId(), $booked);
+        $bookedIds = array_map(fn ($b) => $b->getHouse()->getId(), $booked);
 
-        $available = array_filter($allHouses, fn(House $house) =>
-            !in_array($house->getId(), $bookedIds)
-        );
+        $available = array_filter($allHouses, fn (House $house) => !in_array($house->getId(), $bookedIds));
 
-       return array_map(fn(House $h) => new HouseDto(
+        return array_map(fn (House $h) => new HouseDto(
             id: $h->getId(),
             area: $h->getArea(),
             address: $h->getAddress(),

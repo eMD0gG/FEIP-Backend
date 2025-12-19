@@ -1,13 +1,14 @@
 <?php
+
 namespace App\Controller;
 
-use App\Dto\CreateBookingDto;
-use App\Dto\UpdateBookingDto;
-use App\Service\HouseService;
-use App\Service\BookingService;
-use App\Repository\HouseRepository;
+use App\DTO\CreateBookingDto;
+use App\DTO\UpdateBookingDto;
 use App\Repository\BookingRequestRepository;
+use App\Repository\HouseRepository;
 use App\Repository\UserRepository;
+use App\Service\BookingService;
+use App\Service\HouseService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,8 +25,9 @@ class HouseController extends AbstractController
         private BookingRequestRepository $bookingRepo,
         private UserRepository $userRepo,
         private HouseService $houseService,
-        private BookingService $bookingService
-    ) {}
+        private BookingService $bookingService,
+    ) {
+    }
 
     #[Route('/available', methods: ['GET'])]
     public function getAvailable(): JsonResponse
@@ -82,11 +84,11 @@ class HouseController extends AbstractController
                 $user,
                 $house
             );
-            
+
             return $this->json([
                 'success' => true,
                 'message' => 'Booking created successfully',
-                'booking' => $bookingDto
+                'booking' => $bookingDto,
             ], 201);
             
         } catch (HttpException $e) {
@@ -133,13 +135,13 @@ class HouseController extends AbstractController
                 $data['status'] ?? null,
                 $data['comment'] ?? null
             );
-            
+
             $bookingDto = $this->bookingService->updateBooking($booking, $updateDto);
-            
+
             return $this->json([
                 'success' => true,
                 'message' => 'Booking updated successfully',
-                'booking' => $bookingDto
+                'booking' => $bookingDto,
             ]);
             
         } catch (HttpException $e) {
